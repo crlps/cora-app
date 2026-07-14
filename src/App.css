@@ -1,0 +1,192 @@
+.onboarding {
+  min-height: 100svh;
+  background-color: #FAF2E8;
+  display: flex;
+  flex-direction: column;
+  padding: 48px 24px 40px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ── Header ── */
+.onboarding-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+
+.logo-img {
+  height: 64px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* ── Step indicator ── */
+.step-indicator {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 36px;
+}
+
+.step-dot {
+  height: 5px;
+  border-radius: 3px;
+  background-color: #D4B9A0;
+  transition: all 0.3s ease;
+}
+
+.step-dot.active {
+  background-color: #E97B73;
+  width: 28px;
+}
+
+.step-dot:not(.active) {
+  width: 12px;
+}
+
+/* ── Headline ── */
+.onboarding-headline {
+  font-family: 'Nunito', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: #3D2B1F;
+  line-height: 1.25;
+  margin-bottom: 10px;
+}
+
+.onboarding-subtext {
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  color: #6B5141;
+  line-height: 1.55;
+  margin-bottom: 32px;
+}
+
+/* ── Chips ── */
+.chips-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 20px;
+  border-radius: 50px;
+  border: 2px solid #C8A88A;
+  background-color: transparent;
+  color: #3D2B1F;
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  line-height: 1;
+}
+
+.chip:hover:not(:disabled) {
+  border-color: #E97B73;
+  background-color: rgba(233, 123, 115, 0.08);
+}
+
+.chip.selected {
+  background-color: #E97B73;
+  border-color: #E97B73;
+  color: #fff;
+}
+
+.chip:disabled:not(.selected) {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.chip-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* ── Hint ── */
+.selection-hint {
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #9C7A65;
+  margin-bottom: 28px;
+  min-height: 22px;
+  transition: color 0.2s ease;
+}
+
+.selection-hint.full {
+  color: #7DB89B;
+}
+
+/* ── Nome (step 2) ── */
+.name-input-wrap {
+  margin-bottom: 12px;
+}
+
+.name-input {
+  width: 100%;
+  font-family: 'Nunito', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #3D2B1F;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid #C8A88A;
+  padding: 12px 0;
+  outline: none;
+  transition: border-color 0.2s ease;
+  caret-color: #E97B73;
+}
+
+.name-input::placeholder {
+  color: #C8A88A;
+  font-weight: 400;
+}
+
+.name-input:focus {
+  border-bottom-color: #E97B73;
+}
+
+/* ── Spacer ── */
+.spacer {
+  flex: 1;
+}
+
+/* ── Botão ── */
+.btn-proximo {
+  width: 100%;
+  padding: 18px;
+  border-radius: 18px;
+  border: none;
+  background-color: #E97B73;
+  color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition: background-color 0.18s ease, transform 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-proximo:hover:not(:disabled) {
+  background-color: #d96d65;
+}
+
+.btn-proximo:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-proximo:disabled {
+  background-color: #D4B9A0;
+  cursor: not-allowed;
+}

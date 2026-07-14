@@ -56,9 +56,11 @@ export default function App() {
     })
   }, [])
 
+  // Retorna a Promise do insert para quem precisa saber quando ele terminou
+  // de verdade (ex: EventDetailScreen recarrega "Quem vai" só depois disso).
   function handleConfirm(id) {
     setConfirmedEvents(prev => ({ ...prev, [id]: true }))
-    joinEvent(id) // persiste em background
+    return joinEvent(id)
   }
 
   function handleToggleConfirm(id) {

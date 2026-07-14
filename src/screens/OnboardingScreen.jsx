@@ -96,7 +96,7 @@ export default function OnboardingScreen({ onNext }) {
 
       {step === 1 && (
         <>
-          <h1 className="onboarding-headline">Como gostaria de ser chamada?</h1>
+          <h1 className="onboarding-headline">Qual nome você usa no dia a dia?</h1>
           <p className="onboarding-subtext">
             Pode ser seu nome, apelido — do jeito que preferir.
           </p>

@@ -119,7 +119,7 @@ export default function EventDetailScreen({
       setRealParticipants(list)
       setLoadingParticipants(false)
     })
-  }, [eventId, isConfirmed]) // recarrega ao confirmar
+  }, [eventId]) // carrega ao abrir o evento
 
   if (!event) {
     return (
@@ -137,9 +137,11 @@ export default function EventDetailScreen({
   const participants = [...event.mockParticipants, ...realParticipants]
   const totalConfirmed = participants.length
 
-  function handleConfirm() {
-    onConfirm?.()
-    setShowModal(true)
+  async function handleConfirm() {
+    setShowModal(true) // feedback imediato — não depende do Supabase
+    await onConfirm?.() // espera o insert real terminar em event_participants
+    const freshList = await fetchEventParticipants(eventId)
+    setRealParticipants(freshList) // só agora a lista reflete o insert de verdade
   }
 
   return (

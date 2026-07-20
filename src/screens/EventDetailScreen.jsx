@@ -147,15 +147,17 @@ export default function EventDetailScreen({
   return (
     <div className="event-detail">
 
-      {/* Cover */}
+      {/* Cover — foto real do evento quando houver, ilustração como fallback */}
       <div className="event-cover">
-        <CoverIllustration />
+        {event.coverImage
+          ? <img src={event.coverImage} alt={event.title} className="cover-photo" />
+          : <CoverIllustration />}
         <button className="cover-back" onClick={onBack} aria-label="Voltar">
           <IconBack />
         </button>
         <div className="cover-badge">
           <span>{event.icon}</span>
-          {totalConfirmed} confirmados
+          {totalConfirmed > 0 ? `${totalConfirmed} confirmados` : 'Vagas abertas'}
         </div>
       </div>
 
@@ -180,7 +182,9 @@ export default function EventDetailScreen({
           </div>
           <div className="event-meta-row">
             <div className="meta-icon"><IconPeople /></div>
-            {totalConfirmed} pessoas confirmadas
+            {totalConfirmed > 0
+              ? `${totalConfirmed} ${totalConfirmed === 1 ? 'pessoa confirmada' : 'pessoas confirmadas'}`
+              : 'Vagas abertas — turma exclusiva Cora'}
           </div>
         </div>
 

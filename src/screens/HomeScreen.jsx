@@ -141,11 +141,10 @@ export default function HomeScreen({
   }
 
   /* ── Feed (Início) ── */
-  const sortedFeatured = [...FEATURED_EVENTS].sort((a, b) => {
-    const aMatch = interests.includes(a.interestId) ? 0 : 1
-    const bMatch = interests.includes(b.interestId) ? 0 : 1
-    return aMatch - bMatch
-  })
+  // Ordem: eventos oficiais Cora (pinned) primeiro, depois os que batem
+  // com os interesses da pessoa, depois os demais.
+  const rank = (e) => e.pinned ? 0 : interests.includes(e.interestId) ? 1 : 2
+  const sortedFeatured = [...FEATURED_EVENTS].sort((a, b) => rank(a) - rank(b))
 
   /* ── Agenda ── */
   const calYear  = calendarDate.getFullYear()
@@ -250,7 +249,9 @@ export default function HomeScreen({
                       <span aria-hidden="true">{event.icon}</span>
                       {event.category}
                     </div>
-                    {match && <div className="card-match-badge">✨ Para você</div>}
+                    {event.pinned
+                      ? <div className="card-pinned-badge">⭐ Evento Cora</div>
+                      : match && <div className="card-match-badge">✨ Para você</div>}
                   </div>
 
                   <h2 className="card-title">{event.title}</h2>
@@ -262,15 +263,23 @@ export default function HomeScreen({
 
                   <div className="card-footer">
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <div className="card-avatars">
-                        {MOCK_AVATARS.map((av, i) => (
-                          <div key={i} className="avatar" style={{ background: av.bg, zIndex: MOCK_AVATARS.length - i }}>
-                            {av.initials}
+                      {event.baseConfirmed > 0 ? (
+                        <>
+                          <div className="card-avatars">
+                            {MOCK_AVATARS.map((av, i) => (
+                              <div key={i} className="avatar" style={{ background: av.bg, zIndex: MOCK_AVATARS.length - i }}>
+                                {av.initials}
+                              </div>
+                            ))}
+                            {extra > 0 && <div className="avatar avatar-overflow" style={{ zIndex: 0 }}>+{extra}</div>}
                           </div>
-                        ))}
-                        {extra > 0 && <div className="avatar avatar-overflow" style={{ zIndex: 0 }}>+{extra}</div>}
-                      </div>
-                      <span className="card-confirmed">{count} confirmados</span>
+                          <span className="card-confirmed">{count} confirmados</span>
+                        </>
+                      ) : (
+                        <span className="card-confirmed" style={{ marginLeft: 0 }}>
+                          {count > 0 ? `${count} confirmado${count > 1 ? 's' : ''}` : '✨ Vagas abertas'}
+                        </span>
+                      )}
                     </div>
 
                     <button
@@ -324,7 +333,9 @@ export default function HomeScreen({
                     <span aria-hidden="true">{event.icon}</span>
                     {event.category}
                   </div>
-                  <span className="explore-confirmed-count">👥 {displayCount(event)}</span>
+                  <span className="explore-confirmed-count">
+                    {displayCount(event) > 0 ? `👥 ${displayCount(event)}` : '✨ Novo'}
+                  </span>
                 </div>
 
                 <h2 className="explore-card-title">{event.title}</h2>
@@ -334,7 +345,7 @@ export default function HomeScreen({
 
                 <div className="explore-card-bottom">
                   <span style={{ fontSize: 14, color: '#9C7A65', fontWeight: 600 }}>
-                    {displayCount(event)} confirmados
+                    {displayCount(event) > 0 ? `${displayCount(event)} confirmados` : 'Vagas abertas'}
                   </span>
                   <button
                     className={`btn-explore-ir${isConfirmed(event.id) ? ' confirmed' : ''}`}

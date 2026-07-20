@@ -203,6 +203,18 @@
   white-space: nowrap;
 }
 
+/* Badge "Evento Cora" — evento oficial */
+.card-pinned-badge {
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  background: #E97B73;
+  padding: 4px 10px;
+  border-radius: 50px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(233, 123, 115, 0.3);
+}
+
 /* Category chip */
 .card-category {
   display: inline-flex;

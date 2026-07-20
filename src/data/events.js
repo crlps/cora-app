@@ -27,10 +27,11 @@ function makeEvent(e) {
   const style = CATEGORY_STYLE[e.interestId]
   const base = {
     ...e,
-    category:      meta.label,
-    icon:          meta.icon,
-    categoryBg:    style.bg,
-    categoryColor: style.color,
+    // Eventos especiais podem definir categoria/ícone/cores próprias
+    category:      e.category      ?? meta.label,
+    icon:          e.icon          ?? meta.icon,
+    categoryBg:    e.categoryBg    ?? style?.bg,
+    categoryColor: e.categoryColor ?? style?.color,
   }
   return { ...base, mockParticipants: buildMockParticipants(base) }
 }
@@ -69,7 +70,27 @@ function buildMockParticipants(event) {
 }
 
 // featured: aparece no feed "Início"; os demais só no Explorar
+// pinned: evento oficial Cora — sempre no topo do feed, independente de preferências
 export const EVENTS = [
+  makeEvent({
+    id: 'yogaterapia-vidya',
+    interestId: 'bemestar',
+    featured: true,
+    pinned: true,
+    category: 'Bem-estar',
+    icon: '🧘',
+    categoryBg: '#F3EDE4',
+    categoryColor: '#9A7B4F',
+    title: 'Yogaterapia no Vidya',
+    location: 'Vidya — R. Figueira Filho, 105, Parnamirim',
+    date: 'Quinta, 30 de julho', dateShort: 'Qui, 30 jul',
+    time: '16h45', day: 30, month: 6, year: 2026,
+    baseConfirmed: 0,
+    coverImage: '/assets/evento-vidya.jpg',
+    whatsappLink: 'https://chat.whatsapp.com/EOCrxoc1Tg03cuBHTHfrf1',
+    description:
+      'Uma tarde pensada especialmente para a comunidade Cora. No acolhedor espaço Vidya, em Parnamirim, vamos praticar yogaterapia: uma aula guiada com calma, que respeita o ritmo e as possibilidades de cada corpo. Não precisa ter experiência, nem flexibilidade — só vontade de se cuidar e roupas confortáveis. Tapetes e apoios são fornecidos pelo espaço. Depois da prática, ficamos juntos para um coffee com comidinhas: o melhor momento para conversar, trocar histórias e sair de lá com companhias novas.',
+  }),
   makeEvent({
     id: 'jaqueira',
     interestId: 'caminhada',

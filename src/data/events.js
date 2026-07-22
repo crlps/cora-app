@@ -103,6 +103,7 @@ export const EVENTS = [
     date: 'Sábado, 25 de julho', dateShort: 'Sáb, 25 jul',
     time: '7h30', day: 25, month: 6, year: 2026,
     baseConfirmed: 8,
+    coverImage: '/assets/evento-jaqueira.jpg',
     whatsappLink: 'https://chat.whatsapp.com/CoraJaqueira2026PE',
     description:
       'Uma caminhada leve pelo Parque da Jaqueira, um dos mais bonitos de Recife. O grupo se reúne na entrada principal, faz o percurso completo do parque e termina com um café coletivo em volta dos bancos da praça central. Ritmo tranquilo, para todos os fôlegos.',
@@ -116,6 +117,7 @@ export const EVENTS = [
     date: 'Domingo, 26 de julho', dateShort: 'Dom, 26 jul',
     time: '10h', day: 26, month: 6, year: 2026,
     baseConfirmed: 5,
+    coverImage: '/assets/evento-cafe-literario.jpg',
     whatsappLink: 'https://chat.whatsapp.com/CoraCafeLiterarioBV',
     description:
       'Um encontro para conversar sobre livros tomando um bom café. Cada pessoa traz um livro que marcou sua vida para compartilhar com o grupo. Não precisa ser leitor assíduo — basta gostar de boas histórias.',
@@ -129,6 +131,7 @@ export const EVENTS = [
     date: 'Terça, 28 de julho', dateShort: 'Ter, 28 jul',
     time: '14h', day: 28, month: 6, year: 2026,
     baseConfirmed: 12,
+    coverImage: '/assets/evento-aquarela.jpg',
     whatsappLink: 'https://chat.whatsapp.com/CoraAquarelaRecifeAntigo',
     description:
       'Oficina para iniciantes no Recife Antigo. Todo o material é fornecido: papel, tintas e pincéis. A proposta é pintar cenas do bairro em um ambiente descontraído, com pausa para café.',

@@ -10,7 +10,9 @@ export function getOrCreateUserId() {
   return uid
 }
 
-// Confirma presença do usuário atual em um evento
+// Confirma presença do usuário atual em um evento.
+// Retorna { ok: true } ou { ok: false, full: true } se a turma já lotou
+// (bloqueado pelo trigger de capacidade no banco, não só na UI).
 export async function joinEvent(eventId) {
   const { error } = await supabase
     .from('event_participants')
@@ -18,8 +20,12 @@ export async function joinEvent(eventId) {
       { event_id: eventId, profile_id: getOrCreateUserId() },
       { onConflict: 'event_id,profile_id' }
     )
-  if (error) console.error('[Supabase] Erro ao confirmar presença:', error.message)
-  return !error
+  if (error) {
+    const isFull = error.message?.includes('CAPACITY_FULL')
+    if (!isFull) console.error('[Supabase] Erro ao confirmar presença:', error.message)
+    return { ok: false, full: isFull }
+  }
+  return { ok: true, full: false }
 }
 
 // Cancela a presença do usuário atual
@@ -31,6 +37,19 @@ export async function leaveEvent(eventId) {
     .eq('profile_id', getOrCreateUserId())
   if (error) console.error('[Supabase] Erro ao cancelar presença:', error.message)
   return !error
+}
+
+// Contagem de participantes reais de um evento (mais leve que trazer a lista toda)
+export async function fetchParticipantCount(eventId) {
+  const { count, error } = await supabase
+    .from('event_participants')
+    .select('*', { count: 'exact', head: true })
+    .eq('event_id', eventId)
+  if (error) {
+    console.error('[Supabase] Erro ao contar participantes:', error.message)
+    return 0
+  }
+  return count ?? 0
 }
 
 // Lista os ids dos eventos que o usuário atual confirmou

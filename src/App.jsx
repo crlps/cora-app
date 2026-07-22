@@ -56,17 +56,28 @@ export default function App() {
     })
   }, [])
 
-  // Retorna a Promise do insert para quem precisa saber quando ele terminou
-  // de verdade (ex: EventDetailScreen recarrega "Quem vai" só depois disso).
-  function handleConfirm(id) {
+  // Retorna { ok, full } para quem precisa saber o resultado real do insert
+  // (ex: EventDetailScreen só recarrega "Quem vai" depois disso, e reverte
+  // o estado local se a turma lotou entre o clique e a confirmação no banco).
+  async function handleConfirm(id) {
     setConfirmedEvents(prev => ({ ...prev, [id]: true }))
-    return joinEvent(id)
+    const result = await joinEvent(id)
+    if (!result.ok) setConfirmedEvents(prev => ({ ...prev, [id]: false }))
+    return result
   }
 
-  function handleToggleConfirm(id) {
+  async function handleToggleConfirm(id) {
     const wasConfirmed = confirmedEvents[id]
     setConfirmedEvents(prev => ({ ...prev, [id]: !wasConfirmed }))
-    wasConfirmed ? leaveEvent(id) : joinEvent(id)
+
+    if (wasConfirmed) {
+      await leaveEvent(id)
+      return { ok: true, full: false }
+    }
+
+    const result = await joinEvent(id)
+    if (!result.ok) setConfirmedEvents(prev => ({ ...prev, [id]: false }))
+    return result
   }
 
   async function handleOnboardingDone({ name, interests }) {

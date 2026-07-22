@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { EVENTS, FEATURED_EVENTS, EXPLORE_FILTERS, INTEREST_META } from '../data/events'
+import { fetchParticipantCount } from '../lib/participation'
 import './HomeScreen.css'
 
 const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
@@ -116,8 +117,23 @@ export default function HomeScreen({
   const [calendarDate, setCalendarDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1))
   const [selectedDay, setSelectedDay] = useState(today.getDate())
   const [showNotifications, setShowNotifications] = useState(false)
+  const [realCounts, setRealCounts] = useState({}) // eventId -> total real de confirmados
+  const [fullNotice, setFullNotice] = useState(null) // evento que acabou de lotar
 
   const isConfirmed = (id) => !!confirmedEvents[id]
+
+  // Eventos com limite de vagas precisam da contagem REAL do banco (não só
+  // do estado local), já que a lotação depende de todas as pessoas, não só de mim.
+  const capacityEvents = EVENTS.filter(e => e.capacity != null)
+
+  async function refreshCount(eventId) {
+    const n = await fetchParticipantCount(eventId)
+    setRealCounts(prev => ({ ...prev, [eventId]: n }))
+  }
+
+  useEffect(() => {
+    capacityEvents.forEach(e => refreshCount(e.id))
+  }, [])
 
   // Notificações: uma por evento confirmado, lembrando data/local do encontro
   const notifications = EVENTS
@@ -133,11 +149,38 @@ export default function HomeScreen({
   // Total exibido = base do evento + o próprio usuário, se confirmado
   const displayCount = (event) => event.baseConfirmed + (isConfirmed(event.id) ? 1 : 0)
 
-  function toggleConfirm(e, event) {
+  // Total de confirmados considerando participantes fictícios (mock) do evento
+  function attendeeCount(event) {
+    if (event.capacity != null) {
+      const real = realCounts[event.id] ?? 0
+      return (event.mockParticipants?.length ?? 0) + real
+    }
+    return displayCount(event)
+  }
+
+  function isFull(event) {
+    return event.capacity != null
+      && attendeeCount(event) >= event.capacity
+      && !isConfirmed(event.id)
+  }
+
+  async function toggleConfirm(e, event) {
     e.stopPropagation()
+    if (isFull(event)) return // turma lotada, botão já deveria estar desabilitado
+
     const wasConfirmed = isConfirmed(event.id)
-    onToggleConfirm?.(event.id)
-    if (!wasConfirmed) setWhatsappModal(event)
+    const result = await onToggleConfirm?.(event.id)
+
+    if (event.capacity != null) refreshCount(event.id) // reflete vaga ocupada/liberada
+
+    if (!wasConfirmed) {
+      if (result?.full) {
+        setFullNotice(event.id)
+        setTimeout(() => setFullNotice(null), 4000)
+      } else if (result?.ok !== false) {
+        setWhatsappModal(event)
+      }
+    }
   }
 
   /* ── Feed (Início) ── */
@@ -235,8 +278,10 @@ export default function HomeScreen({
           <div className="home-cards">
             {sortedFeatured.map(event => {
               const match = interests.includes(event.interestId)
-              const count = displayCount(event)
+              const count = attendeeCount(event)
               const extra = Math.max(0, count - MOCK_AVATARS.length)
+              const full = isFull(event)
+              const vagasRestantes = event.capacity != null ? Math.max(0, event.capacity - count) : null
               return (
                 <article
                   key={event.id}
@@ -263,7 +308,13 @@ export default function HomeScreen({
 
                   <div className="card-footer">
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                      {event.baseConfirmed > 0 ? (
+                      {event.capacity != null ? (
+                        <span className="card-confirmed" style={{ marginLeft: 0 }}>
+                          {full
+                            ? '🚫 Turma lotada'
+                            : `${vagasRestantes} de ${event.capacity} vagas disponíveis`}
+                        </span>
+                      ) : event.baseConfirmed > 0 ? (
                         <>
                           <div className="card-avatars">
                             {MOCK_AVATARS.map((av, i) => (
@@ -285,11 +336,18 @@ export default function HomeScreen({
                     <button
                       className={`btn-quero-ir${isConfirmed(event.id) ? ' confirmed' : ''}`}
                       onClick={(e) => toggleConfirm(e, event)}
+                      disabled={full}
                       aria-pressed={isConfirmed(event.id)}
                     >
-                      {isConfirmed(event.id) ? 'Confirmado ✓' : 'Quero ir'}
+                      {isConfirmed(event.id) ? 'Confirmado ✓' : full ? 'Turma lotada' : 'Quero ir'}
                     </button>
                   </div>
+
+                  {event.id === fullNotice && (
+                    <p className="card-full-notice">
+                      Que pena! A turma lotou antes de confirmarmos sua vaga. 💛
+                    </p>
+                  )}
                 </article>
               )
             })}

@@ -107,6 +107,7 @@ export default function EventDetailScreen({
 }) {
   const event = getEventById(eventId)
   const [showModal, setShowModal] = useState(false)
+  const [showFullNotice, setShowFullNotice] = useState(false)
   const [realParticipants, setRealParticipants] = useState([])
   const [loadingParticipants, setLoadingParticipants] = useState(true)
 
@@ -136,12 +137,23 @@ export default function EventDetailScreen({
   // pessoas reais que confirmaram presença pelo app.
   const participants = [...event.mockParticipants, ...realParticipants]
   const totalConfirmed = participants.length
+  const isFull = event.capacity != null && totalConfirmed >= event.capacity && !isConfirmed
+  const vagasRestantes = event.capacity != null ? Math.max(0, event.capacity - totalConfirmed) : null
 
   async function handleConfirm() {
-    setShowModal(true) // feedback imediato — não depende do Supabase
-    await onConfirm?.() // espera o insert real terminar em event_participants
+    if (isFull) return // botão já deveria estar desabilitado
+
+    // Eventos sem limite: feedback imediato, não depende do Supabase.
+    // Eventos com capacidade: espera confirmar de verdade antes de comemorar,
+    // já que a vaga pode ter lotado entre o clique e a resposta do banco.
+    if (event.capacity == null) setShowModal(true)
+
+    const result = await onConfirm?.()
     const freshList = await fetchEventParticipants(eventId)
-    setRealParticipants(freshList) // só agora a lista reflete o insert de verdade
+    setRealParticipants(freshList)
+
+    if (result?.full) setShowFullNotice(true)
+    else if (event.capacity != null) setShowModal(true)
   }
 
   return (
@@ -157,7 +169,9 @@ export default function EventDetailScreen({
         </button>
         <div className="cover-badge">
           <span>{event.icon}</span>
-          {totalConfirmed > 0 ? `${totalConfirmed} confirmados` : 'Vagas abertas'}
+          {event.capacity != null
+            ? (isFull ? 'Turma lotada' : `${vagasRestantes} vagas restantes`)
+            : (totalConfirmed > 0 ? `${totalConfirmed} confirmados` : 'Vagas abertas')}
         </div>
       </div>
 
@@ -182,9 +196,13 @@ export default function EventDetailScreen({
           </div>
           <div className="event-meta-row">
             <div className="meta-icon"><IconPeople /></div>
-            {totalConfirmed > 0
-              ? `${totalConfirmed} ${totalConfirmed === 1 ? 'pessoa confirmada' : 'pessoas confirmadas'}`
-              : 'Vagas abertas — turma exclusiva Cora'}
+            {event.capacity != null
+              ? (isFull
+                  ? '🚫 Turma lotada'
+                  : `${vagasRestantes} de ${event.capacity} vagas disponíveis`)
+              : totalConfirmed > 0
+                ? `${totalConfirmed} ${totalConfirmed === 1 ? 'pessoa confirmada' : 'pessoas confirmadas'}`
+                : 'Vagas abertas — turma exclusiva Cora'}
           </div>
         </div>
 
@@ -238,9 +256,9 @@ export default function EventDetailScreen({
         <button
           className={`btn-confirm${isConfirmed ? ' confirmed' : ''}`}
           onClick={handleConfirm}
-          disabled={isConfirmed}
+          disabled={isConfirmed || isFull}
         >
-          {isConfirmed ? 'Presença confirmada ✓' : 'Confirmar presença'}
+          {isConfirmed ? 'Presença confirmada ✓' : isFull ? 'Turma lotada' : 'Confirmar presença'}
         </button>
       </div>
 
@@ -263,6 +281,23 @@ export default function EventDetailScreen({
             </button>
             <button className="btn-modal-close" onClick={() => setShowModal(false)}>
               Agora não
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Aviso: a turma lotou entre o clique e a confirmação no banco */}
+      {showFullNotice && (
+        <div className="modal-overlay" onClick={() => setShowFullNotice(false)}>
+          <div className="modal-card" onClick={e => e.stopPropagation()}>
+            <div className="modal-icon">💛</div>
+            <p className="modal-title">Ih, acabaram as vagas!</p>
+            <p className="modal-text">
+              Que pena — a turma da {event.title} lotou bem na hora em que você
+              confirmou. Fique de olho nas próximas turmas!
+            </p>
+            <button className="btn-modal-close" onClick={() => setShowFullNotice(false)}>
+              Entendi
             </button>
           </div>
         </div>

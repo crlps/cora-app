@@ -86,6 +86,7 @@ export const EVENTS = [
     date: 'Quinta, 30 de julho', dateShort: 'Qui, 30 jul',
     time: '16h45', day: 30, month: 6, year: 2026,
     baseConfirmed: 0,
+    capacity: 20,
     coverImage: '/assets/evento-vidya.jpg',
     whatsappLink: 'https://chat.whatsapp.com/EOCrxoc1Tg03cuBHTHfrf1',
     description:

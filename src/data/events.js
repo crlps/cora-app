@@ -9,6 +9,7 @@ export const INTEREST_META = {
   culinaria:    { label: 'Culinária',    icon: '🍳' },
   leitura:      { label: 'Leitura',      icon: '📖' },
   artesanato:   { label: 'Artesanato',   icon: '🧶' },
+  bemestar:     { label: 'Bem-estar',    icon: '🧘' },
 }
 
 const CATEGORY_STYLE = {
@@ -20,6 +21,7 @@ const CATEGORY_STYLE = {
   culinaria:    { bg: '#FEF0E2', color: '#A85A2A' },
   leitura:      { bg: '#E8F0FB', color: '#4A6FA5' },
   artesanato:   { bg: '#F5EBE0', color: '#8A5A2A' },
+  bemestar:     { bg: '#F3EDE4', color: '#9A7B4F' },
 }
 
 function makeEvent(e) {

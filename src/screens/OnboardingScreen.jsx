@@ -1,16 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
+import { INTEREST_META } from '../data/events'
 import '../App.css'
 
-const INTERESTS = [
-  { id: 'caminhada',    label: 'Caminhada',   icon: '🚶' },
-  { id: 'cafe',         label: 'Café',         icon: '☕' },
-  { id: 'artes',        label: 'Artes',        icon: '🎨' },
-  { id: 'voluntariado', label: 'Voluntariado', icon: '🤝' },
-  { id: 'danca',        label: 'Dança',        icon: '💃' },
-  { id: 'culinaria',    label: 'Culinária',    icon: '🍳' },
-  { id: 'leitura',      label: 'Leitura',      icon: '📖' },
-  { id: 'artesanato',   label: 'Artesanato',   icon: '🧶' },
-]
+const INTERESTS = Object.entries(INTEREST_META).map(([id, meta]) => ({ id, ...meta }))
 
 const MAX = 3
 

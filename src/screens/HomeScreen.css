@@ -257,12 +257,16 @@
   color: #C8A88A;
 }
 
-/* Avatars + confirmados */
+/* Avatars + confirmados + botão — empilhados no mobile para nunca cortar texto */
 .card-footer {
   display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.card-footer-info {
+  display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
 }
 
 .card-avatars {
@@ -300,21 +304,20 @@
   white-space: nowrap;
 }
 
-/* Botão */
+/* Botão — largura total, sempre legível, nunca corta texto */
 .btn-quero-ir {
-  padding: 13px 20px;
+  width: 100%;
+  padding: 15px 20px;
   border-radius: 14px;
   border: none;
   background-color: #E97B73;
   color: #fff;
   font-family: 'Nunito', sans-serif;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 800;
   cursor: pointer;
   transition: background-color 0.18s ease, transform 0.1s ease;
   white-space: nowrap;
-  flex-shrink: 1;
-  min-width: 0;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -323,21 +326,17 @@
 }
 
 .btn-quero-ir:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
 .btn-quero-ir.confirmed {
   background-color: #7DB89B;
-  padding: 13px 16px;
-  font-size: 15px;
 }
 
 .btn-quero-ir:disabled {
   background-color: #D9C7B8;
   color: #8A7462;
   cursor: not-allowed;
-  padding: 13px 16px;
-  font-size: 15px;
 }
 
 .btn-quero-ir:disabled:hover {
@@ -498,8 +497,8 @@
 
 .explore-card-bottom {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 10px;
   margin-top: 4px;
 }
 
@@ -511,13 +510,14 @@
 }
 
 .btn-explore-ir {
-  padding: 10px 20px;
+  width: 100%;
+  padding: 13px 20px;
   border-radius: 12px;
   border: none;
   background-color: #E97B73;
   color: #fff;
   font-family: 'Nunito', sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 800;
   cursor: pointer;
   white-space: nowrap;
@@ -526,8 +526,14 @@
 }
 
 .btn-explore-ir:hover  { background-color: #d96d65; }
-.btn-explore-ir:active { transform: scale(0.97); }
+.btn-explore-ir:active { transform: scale(0.98); }
 .btn-explore-ir.confirmed { background-color: #7DB89B; }
+.btn-explore-ir:disabled {
+  background-color: #D9C7B8;
+  color: #8A7462;
+  cursor: not-allowed;
+}
+.btn-explore-ir:disabled:hover { background-color: #D9C7B8; }
 
 /* ── Agenda ── */
 .agenda-view {

@@ -307,7 +307,7 @@ export default function HomeScreen({
                   </div>
 
                   <div className="card-footer">
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div className="card-footer-info">
                       {event.capacity != null ? (
                         <span className="card-confirmed" style={{ marginLeft: 0 }}>
                           {full
@@ -392,7 +392,7 @@ export default function HomeScreen({
                     {event.category}
                   </div>
                   <span className="explore-confirmed-count">
-                    {displayCount(event) > 0 ? `👥 ${displayCount(event)}` : '✨ Novo'}
+                    {attendeeCount(event) > 0 ? `👥 ${attendeeCount(event)}` : '✨ Novo'}
                   </span>
                 </div>
 
@@ -403,13 +403,18 @@ export default function HomeScreen({
 
                 <div className="explore-card-bottom">
                   <span style={{ fontSize: 14, color: '#9C7A65', fontWeight: 600 }}>
-                    {displayCount(event) > 0 ? `${displayCount(event)} confirmados` : 'Vagas abertas'}
+                    {event.capacity != null
+                      ? (isFull(event)
+                          ? '🚫 Turma lotada'
+                          : `${Math.max(0, event.capacity - attendeeCount(event))} de ${event.capacity} vagas disponíveis`)
+                      : (attendeeCount(event) > 0 ? `${attendeeCount(event)} confirmados` : 'Vagas abertas')}
                   </span>
                   <button
                     className={`btn-explore-ir${isConfirmed(event.id) ? ' confirmed' : ''}`}
                     onClick={(e) => toggleConfirm(e, event)}
+                    disabled={isFull(event)}
                   >
-                    {isConfirmed(event.id) ? 'Confirmado ✓' : 'Quero ir'}
+                    {isConfirmed(event.id) ? 'Confirmado ✓' : isFull(event) ? 'Turma lotada' : 'Quero ir'}
                   </button>
                 </div>
               </div>

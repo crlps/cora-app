@@ -102,7 +102,7 @@ export default function EventDetailScreen({
   eventId,
   userInterests = [],
   isConfirmed = false,
-  onConfirm,
+  onToggleConfirm,
   onBack,
 }) {
   const event = getEventById(eventId)
@@ -140,20 +140,25 @@ export default function EventDetailScreen({
   const isFull = event.capacity != null && totalConfirmed >= event.capacity && !isConfirmed
   const vagasRestantes = event.capacity != null ? Math.max(0, event.capacity - totalConfirmed) : null
 
-  async function handleConfirm() {
-    if (isFull) return // botão já deveria estar desabilitado
+  // Confirma OU cancela presença — mesma ação do botão do Home/Explorar,
+  // só que também acessível de dentro da página do evento.
+  async function handleToggleConfirm() {
+    const wasConfirmed = isConfirmed
+    if (!wasConfirmed && isFull) return // botão já deveria estar desabilitado
 
-    // Eventos sem limite: feedback imediato, não depende do Supabase.
-    // Eventos com capacidade: espera confirmar de verdade antes de comemorar,
-    // já que a vaga pode ter lotado entre o clique e a resposta do banco.
-    if (event.capacity == null) setShowModal(true)
+    // Ao confirmar em evento sem limite: feedback imediato, não depende do Supabase.
+    // Com capacidade: espera confirmar de verdade antes de comemorar, já que a
+    // vaga pode ter lotado entre o clique e a resposta do banco.
+    if (!wasConfirmed && event.capacity == null) setShowModal(true)
 
-    const result = await onConfirm?.()
+    const result = await onToggleConfirm?.()
     const freshList = await fetchEventParticipants(eventId)
-    setRealParticipants(freshList)
+    setRealParticipants(freshList) // reflete o cancelamento/confirmação de verdade
 
-    if (result?.full) setShowFullNotice(true)
-    else if (event.capacity != null) setShowModal(true)
+    if (!wasConfirmed) {
+      if (result?.full) setShowFullNotice(true)
+      else if (event.capacity != null) setShowModal(true)
+    }
   }
 
   return (
@@ -251,12 +256,15 @@ export default function EventDetailScreen({
 
       </div>
 
-      {/* CTA fixo */}
+      {/* CTA fixo — clicável também quando já confirmado, para permitir cancelar */}
       <div className="event-cta">
+        {isConfirmed && (
+          <p className="cta-cancel-hint">Toque novamente para cancelar sua presença</p>
+        )}
         <button
           className={`btn-confirm${isConfirmed ? ' confirmed' : ''}`}
-          onClick={handleConfirm}
-          disabled={isConfirmed || isFull}
+          onClick={handleToggleConfirm}
+          disabled={!isConfirmed && isFull}
         >
           {isConfirmed ? 'Presença confirmada ✓' : isFull ? 'Turma lotada' : 'Confirmar presença'}
         </button>

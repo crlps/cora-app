@@ -59,13 +59,8 @@ export default function App() {
   // Retorna { ok, full } para quem precisa saber o resultado real do insert
   // (ex: EventDetailScreen só recarrega "Quem vai" depois disso, e reverte
   // o estado local se a turma lotou entre o clique e a confirmação no banco).
-  async function handleConfirm(id) {
-    setConfirmedEvents(prev => ({ ...prev, [id]: true }))
-    const result = await joinEvent(id)
-    if (!result.ok) setConfirmedEvents(prev => ({ ...prev, [id]: false }))
-    return result
-  }
-
+  // Usado tanto para confirmar quanto para cancelar (desmarcar) presença —
+  // mesmo handler serve ao Home, Explorar e à página do evento.
   async function handleToggleConfirm(id) {
     const wasConfirmed = confirmedEvents[id]
     setConfirmedEvents(prev => ({ ...prev, [id]: !wasConfirmed }))
@@ -94,7 +89,7 @@ export default function App() {
         eventId={selectedEventId}
         userInterests={user.interests}
         isConfirmed={!!confirmedEvents[selectedEventId]}
-        onConfirm={() => handleConfirm(selectedEventId)}
+        onToggleConfirm={() => handleToggleConfirm(selectedEventId)}
         onBack={() => setScreen('home')}
       />
     )

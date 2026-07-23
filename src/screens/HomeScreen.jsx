@@ -122,17 +122,16 @@ export default function HomeScreen({
 
   const isConfirmed = (id) => !!confirmedEvents[id]
 
-  // Eventos com limite de vagas precisam da contagem REAL do banco (não só
-  // do estado local), já que a lotação depende de todas as pessoas, não só de mim.
-  const capacityEvents = EVENTS.filter(e => e.capacity != null)
-
+  // Contagem REAL (banco) de participantes por evento — usada em todo canto
+  // que mostra "confirmados"/"vagas", tanto no cartão quanto na página do evento,
+  // já que depende de todas as pessoas, não só do usuário atual.
   async function refreshCount(eventId) {
     const n = await fetchParticipantCount(eventId)
     setRealCounts(prev => ({ ...prev, [eventId]: n }))
   }
 
   useEffect(() => {
-    capacityEvents.forEach(e => refreshCount(e.id))
+    EVENTS.forEach(e => refreshCount(e.id))
   }, [])
 
   // Notificações: uma por evento confirmado, lembrando data/local do encontro
@@ -146,16 +145,11 @@ export default function HomeScreen({
       text: `Sua presença está confirmada — ${e.dateShort} às ${e.time}, em ${e.location}.`,
     }))
 
-  // Total exibido = base do evento + o próprio usuário, se confirmado
-  const displayCount = (event) => event.baseConfirmed + (isConfirmed(event.id) ? 1 : 0)
-
-  // Total de confirmados considerando participantes fictícios (mock) do evento
+  // Total de confirmados = participantes fictícios (mock) do evento + contagem
+  // real do banco — a mesma conta usada dentro da página do evento.
   function attendeeCount(event) {
-    if (event.capacity != null) {
-      const real = realCounts[event.id] ?? 0
-      return (event.mockParticipants?.length ?? 0) + real
-    }
-    return displayCount(event)
+    const real = realCounts[event.id] ?? 0
+    return (event.mockParticipants?.length ?? 0) + real
   }
 
   function isFull(event) {
@@ -171,7 +165,7 @@ export default function HomeScreen({
     const wasConfirmed = isConfirmed(event.id)
     const result = await onToggleConfirm?.(event.id)
 
-    if (event.capacity != null) refreshCount(event.id) // reflete vaga ocupada/liberada
+    refreshCount(event.id) // reflete vaga ocupada/liberada em tempo real
 
     if (!wasConfirmed) {
       if (result?.full) {

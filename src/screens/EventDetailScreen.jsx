@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getEventById, INTEREST_META } from '../data/events'
-import { fetchEventParticipants, getOrCreateUserId } from '../lib/participation'
+import { fetchEventParticipants, getOrCreateUserId, removeParticipant } from '../lib/participation'
 import './EventDetailScreen.css'
 
 const AVATAR_COLORS = ['#E97B73', '#7DB89B', '#D4956A', '#A07DB8', '#4A6FA5', '#A8458A']
@@ -110,6 +110,8 @@ export default function EventDetailScreen({
   const [showFullNotice, setShowFullNotice] = useState(false)
   const [realParticipants, setRealParticipants] = useState([])
   const [loadingParticipants, setLoadingParticipants] = useState(true)
+  const [participantToRemove, setParticipantToRemove] = useState(null) // { id, name }
+  const [removing, setRemoving] = useState(false)
 
   const myId = getOrCreateUserId()
 
@@ -159,6 +161,19 @@ export default function EventDetailScreen({
       if (result?.full) setShowFullNotice(true)
       else if (event.capacity != null) setShowModal(true)
     }
+  }
+
+  // Remove a presença de qualquer participante da lista — útil para tirar
+  // inscrições duplicadas ou quando a pessoa não consegue cancelar pelo
+  // próprio aparelho (ex: confirmou em outra sessão/navegador).
+  async function handleRemoveParticipant() {
+    if (!participantToRemove) return
+    setRemoving(true)
+    await removeParticipant(eventId, participantToRemove.id)
+    const freshList = await fetchEventParticipants(eventId)
+    setRealParticipants(freshList)
+    setRemoving(false)
+    setParticipantToRemove(null)
   }
 
   return (
@@ -249,6 +264,15 @@ export default function EventDetailScreen({
                       : commonInterestsLabel(p.interests, userInterests)}
                   </span>
                 </div>
+                {!p.isMock && (
+                  <button
+                    className="participant-remove"
+                    onClick={() => setParticipantToRemove(p)}
+                    aria-label={`Remover ${p.name} da lista`}
+                  >
+                    ×
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -306,6 +330,36 @@ export default function EventDetailScreen({
             </p>
             <button className="btn-modal-close" onClick={() => setShowFullNotice(false)}>
               Entendi
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmação: remover alguém da lista de confirmados */}
+      {participantToRemove && (
+        <div className="modal-overlay" onClick={() => !removing && setParticipantToRemove(null)}>
+          <div className="modal-card" onClick={e => e.stopPropagation()}>
+            <div className="modal-icon">🗑️</div>
+            <p className="modal-title">Remover da lista?</p>
+            <p className="modal-text">
+              {participantToRemove.id === myId
+                ? 'Você será removido(a) da lista de confirmados e a vaga ficará disponível novamente.'
+                : `${participantToRemove.name} será removido(a) da lista de confirmados e a vaga ficará disponível novamente.`}
+            </p>
+            <button
+              className="btn-whatsapp"
+              style={{ background: '#E97B73' }}
+              onClick={handleRemoveParticipant}
+              disabled={removing}
+            >
+              {removing ? 'Removendo…' : 'Sim, remover'}
+            </button>
+            <button
+              className="btn-modal-close"
+              onClick={() => setParticipantToRemove(null)}
+              disabled={removing}
+            >
+              Cancelar
             </button>
           </div>
         </div>

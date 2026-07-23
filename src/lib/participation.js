@@ -39,6 +39,21 @@ export async function leaveEvent(eventId) {
   return !error
 }
 
+// Remove a presença de um participante específico pelo profile_id — usado
+// na lista "Quem vai" para remover duplicatas ou desistências, já que sem
+// login o "cancelar" comum só funciona no mesmo navegador que confirmou
+// (ex: se a pessoa abriu o link do WhatsApp em outra aba/sessão, o app
+// gera um perfil anônimo novo e ela perde o vínculo com a inscrição antiga).
+export async function removeParticipant(eventId, profileId) {
+  const { error } = await supabase
+    .from('event_participants')
+    .delete()
+    .eq('event_id', eventId)
+    .eq('profile_id', profileId)
+  if (error) console.error('[Supabase] Erro ao remover participante:', error.message)
+  return !error
+}
+
 // Contagem de participantes reais de um evento (mais leve que trazer a lista toda)
 export async function fetchParticipantCount(eventId) {
   const { count, error } = await supabase

@@ -198,7 +198,31 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  flex: 1;
+  min-width: 0;
 }
+
+.participant-remove {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  border: none;
+  background: #F5EAE3;
+  color: #B0483F;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.participant-remove:hover { background: #FDECEA; }
+.participant-remove:active { transform: scale(0.95); }
 
 .participant-name {
   font-family: 'Nunito', sans-serif;
@@ -346,6 +370,7 @@
 
 .btn-whatsapp:hover { background-color: #1ebe5a; }
 .btn-whatsapp:active { transform: scale(0.98); }
+.btn-whatsapp:disabled { opacity: 0.65; cursor: not-allowed; }
 
 .btn-modal-close {
   background: none;
@@ -357,3 +382,5 @@
   cursor: pointer;
   padding: 8px;
 }
+
+.btn-modal-close:disabled { opacity: 0.5; cursor: not-allowed; }
